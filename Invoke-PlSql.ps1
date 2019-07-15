@@ -39,7 +39,7 @@ function Invoke-PlSql {
         $OldSqlPath = $env:SQLPATH
         $env:SQLPATH = $env:TEMP
         # Invoke the query
-        $Output = $QueryString | sql -S $ConnectString | where {$_ -ne ''}
+        $Output = $QueryString | sql -S $ConnectString | select -Skip 1 | select -SkipLast 1
         # Reset SQLPATH
         $env:SQLPATH=$OldSqlPath
         # Check for blank output
@@ -54,8 +54,8 @@ function Invoke-PlSql {
         if ($Output[-1] -eq 'no rows selected') {
             return
         }
-        # Skip the "N rows selected." last row
-        $Output = $Output | Select-Object -SkipLast 1
+        # Drop the last two rows: A blank row and an "N rows selected." row
+        $Output = $Output | Select-Object -SkipLast 2
         # Check for rows with odd number of double quotes (split by double quotes results in even # of pieces)
         $UnterminatedRows = $Output | where {($_ -split '"').Count % 2 -eq 0}
         if ($UnterminatedRows.Count -gt 0) {
@@ -70,6 +70,10 @@ function Invoke-PlSql {
         }
         # Get the resulting object array
         $Result = $Output | Select -Skip 1 | ConvertFrom-Csv -Header $Header
+        # Handle null output
+        if ($Result -eq $null) {
+            $Result = '' | select -Property $Header
+        }
         # Process switches
         if ($Scalar) {
             ($Result[0].psobject.properties | select -First 1).Value
