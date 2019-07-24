@@ -21,7 +21,8 @@ function Invoke-PlSql {
         [string] $ConnectString = $env:DEFAULTCONNECTION,
         [Parameter(ValueFromPipeline=$true)]
         [string] $Query,
-        [switch] $Scalar
+        [switch] $Scalar,
+        [switch] $WhatIf
     )
     begin {
         $QueryString = ''
@@ -38,8 +39,9 @@ function Invoke-PlSql {
         # Add temp directory to SQLPATH
         $OldSqlPath = $env:SQLPATH
         $env:SQLPATH = $env:TEMP
-        # Strip comments from query using Jeffrey Friedl's comment finder from the book Mastering Regular Expressions
-        $QueryString = $QueryString -replace '/\*[^*]*\*+(?:[^*/][^*]*\*+)*/'
+        # Strip blank lines from query
+        $QueryString = $QueryString  -replace '(?<=\n|^)\s*\n'
+        if ($WhatIf) { return $QueryString }
         # Invoke the query
         $Output = $QueryString | sql -S $ConnectString
         # Trim leading and trailing blank strings in output
