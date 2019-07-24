@@ -38,12 +38,16 @@ function Invoke-PlSql {
         # Add temp directory to SQLPATH
         $OldSqlPath = $env:SQLPATH
         $env:SQLPATH = $env:TEMP
+        # Strip comments from query using Jeffrey Friedl's comment finder from the book Mastering Regular Expressions
+        $QueryString = $QueryString -replace '/\*[^*]*\*+(?:[^*/][^*]*\*+)*/'
         # Invoke the query
-        $Output = $QueryString | sql -S $ConnectString | select -Skip 1 | select -SkipLast 1
+        $Output = $QueryString | sql -S $ConnectString
+        # Trim leading and trailing blank strings in output
+        $Output = $Output -join "`n" -replace '^\n*' -replace '\n*$' -split "`n"
         # Reset SQLPATH
         $env:SQLPATH=$OldSqlPath
         # Check for blank output
-        if ($Output.count -eq 0) {
+        if ([string]::IsNullOrWhiteSpace($Output)) {
             return
         }
         # Check for errors
