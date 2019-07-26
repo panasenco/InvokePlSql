@@ -56,6 +56,10 @@ function Invoke-PlSql {
         if ($Output[0] -match '^Error starting at .*') {
             throw ($Output -join "`n")
         }
+        # Check for created/dropped table message
+        if ($Output[0] -match '^Table .*') {
+            return $Output[0]
+        }
         # Check for no rows
         if ($Output[-1] -eq 'no rows selected') {
             return
