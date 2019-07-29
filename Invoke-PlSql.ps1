@@ -53,16 +53,16 @@ function Invoke-PlSql {
             return
         }
         # Check for errors
-        if ($Output[0] -match '^Error starting at .*') {
+        if ($Output[0] -match '^Error starting at .*' -or $Output -match 'Error Message = ') {
             throw ($Output -join "`n")
         }
-        # Check for created/dropped table message
-        if ($Output[0] -match '^Table .*') {
-            return $Output[0]
-        }
-        # Check for no rows
+        # Return null if no rows selected
         if ($Output[-1] -eq 'no rows selected') {
             return
+        }
+        # Return single-line message
+        if ($Output.Count -eq 1) {
+            return $Output
         }
         # Drop the last two rows: A blank row and an "N rows selected." row
         $Output = $Output | Select-Object -SkipLast 2
