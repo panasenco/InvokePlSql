@@ -60,9 +60,9 @@ function Invoke-PlSql {
         if ($Output[-1] -eq 'no rows selected') {
             return
         }
-        # Return single-line message
-        if ($Output.Count -eq 1) {
-            return $Output
+        # Return messages as-is, with blank lines removed. Message headers don't begin with quote (") character.
+        if (-not ($Output[0] -match '^"')) {
+            return ($Output | where {-not [string]::IsNullOrWhiteSpace($_)})
         }
         # Drop the last two rows: A blank row and an "N rows selected." row
         $Output = $Output | Select-Object -SkipLast 2
