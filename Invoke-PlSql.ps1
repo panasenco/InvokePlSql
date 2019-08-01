@@ -33,9 +33,7 @@ function Invoke-PlSql {
     }
     end {
         # Create temporary login.sql file
-        "SET FEEDBACK 1",
-        "SET SQLFORMAT CSV" | 
-        Set-Content "$env:TEMP\login.sql"
+        "SET FEEDBACK 1", "SET SQLFORMAT CSV", "SET SERVEROUTPUT ON" | Set-Content "$env:TEMP\login.sql"
         # Add temp directory to SQLPATH
         $OldSqlPath = $env:SQLPATH
         $env:SQLPATH = $env:TEMP
