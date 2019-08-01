@@ -52,7 +52,8 @@ function Invoke-PlSql {
         }
         # Check for errors
         if ($Output -match '^\s*Error starting at ' -or $Output -match '^\s*Error Message = ') {
-            throw ($Output -join "`n")
+            Write-Error -Message ($Output -join "`n")
+            return
         }
         # Return null if no rows selected
         if ($Output[-1] -eq 'no rows selected') {
