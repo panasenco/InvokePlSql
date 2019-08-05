@@ -5,20 +5,21 @@
     Uses sql.exe that ships as part of SQL Developer to execute a PL/SQL command or script, return the output
     as objects, and display helpful error messages.
 .Parameter ConnectString
-    The connection string to use. Set the environment variable DEFAULTCONNECTION to not have to provide this every time.
+    The connection string to use. Defaults to the environment variable ORACLE_DEFAULTCONNECTION.
 .Parameter Query
     Query to execute - can be passed through the pipeline.
 .Parameter Scalar
     Set this switch to return a single value from each query.
 .Notes
     sql.exe from SQL Developer (in sqldeveloper/bin) must be in PATH.
-    TODO: Implement -Update switch to return number of rows affected by each query.
+    ORACLE_HOME environment variable must be set to directory containing network/admin/tnsnames.ora.
+    ORACLE_DEFAULTCONNECTION environment variable can be set to the default connection string to use.
 #>
 function Invoke-PlSql {
 [CmdletBinding()]
     param (
         [Parameter(Position=0)]
-        [string] $ConnectString = $env:DEFAULTCONNECTION,
+        [string] $ConnectString = $env:ORACLE_DEFAULTCONNECTION,
         [Parameter(ValueFromPipeline=$true)]
         [string] $Query,
         [switch] $Scalar,
